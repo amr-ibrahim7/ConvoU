@@ -8,6 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # Node modules
+node_modules
 fe/node_modules/
 be/node_modules/
 

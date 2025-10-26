@@ -1,0 +1,20 @@
+{
+   "name": "ConvoU",
+   "version": "1.0.0",
+   "description": "",
+   "main": "index.js",
+  "scripts": {
+  "dev:be": "pnpm --filter be dev",
+  "dev:fe": "pnpm --filter fe dev",
+  "dev": "concurrently \"pnpm run dev:be\" \"pnpm run dev:fe\"",
+  "build": "pnpm install && pnpm --filter fe run build",
+  "start": "pnpm --filter be start"
+},
+   "keywords": [],
+   "author": "",
+   "license": "ISC",
+   "packageManager": "pnpm@10.13.1",
+   "devDependencies": {
+      "concurrently": "^9.2.1"
+   }
+}
