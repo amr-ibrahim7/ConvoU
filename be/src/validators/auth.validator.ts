@@ -22,3 +22,17 @@ export const signupSchema = z.object({
         : "Not a string",
   }).min(6, { error: "Password must be at least 6 characters long" }),
 });
+
+
+export const loginSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: "Email is required" })
+    .email({ message: "Invalid email address" }),
+  
+  password: z
+    .string()
+    .min(1, { message: "Password is required" }),
+});
+
+export type LoginBody = z.infer<typeof loginSchema>;
