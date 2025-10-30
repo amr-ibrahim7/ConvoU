@@ -1,8 +1,14 @@
-import { Button } from "@/components/ui/button";
+import Navigation from '@/components/Navigation';
+import HeroSection from '@/components/HeroSection';
+import AboutUs from '@/components/AboutUs';
 
 
 export default function Home() {
   return (
-    <Button>Click me</Button>
+    <>
+      <Navigation />
+      <HeroSection />
+      <AboutUs />
+    </>
   );
 }
