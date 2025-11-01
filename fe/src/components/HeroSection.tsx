@@ -19,11 +19,6 @@ export default function HeroSection() {
    
       <div className="relative z-10 flex h-full flex-col">
 
-        <div className="px-8 py-6">
-          <div className="text-2xl font-light tracking-wider text-white">
-            U.CONVO
-          </div>
-        </div>
 
         <div className="flex flex-1 flex-col items-center justify-center px-8 pb-24">
           <div className="mb-16 text-center">
@@ -61,13 +56,6 @@ export default function HeroSection() {
         </div>
 
 
-        <div className="relative z-20 px-12 py-8">
-          <div className="text-2xl font-light tracking-wider text-white">
-            U.CONVO
-          </div>
-        </div>
-
-
         <div className="relative z-10 flex h-[calc(100%-120px)] flex-col justify-center px-12 pb-16">
           <div className="max-w-4xl">
             <h1 className="mb-8 text-7xl font-light leading-tight text-white xl:text-8xl">
@@ -77,7 +65,7 @@ export default function HeroSection() {
             </h1>
 
             <div className="flex items-start gap-4">
-              <div className="mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-white/30">
+              <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/30">
                 <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>

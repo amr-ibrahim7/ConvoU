@@ -4,10 +4,10 @@ import prisma from "../lib/prisma.js";
 import { User } from "@prisma/client";
 
 
-type UserWithoutPassword = Omit<User, "password">;
+export type UserWithoutPassword = Omit<User, "password">;
 
 
-interface AuthRequest extends Request {
+export interface AuthRequest extends Request {
   user?: UserWithoutPassword;
 }
 

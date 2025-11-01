@@ -4,6 +4,8 @@ import express, { Application, Request, Response } from "express";
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cookieParser from "cookie-parser";
+import passport from "passport";
+import './lib/passport.js';
 
 
 import authRoutes from "./routes/auth.route.js";
@@ -22,11 +24,17 @@ const PORT: number = parseInt(process.env.PORT || "3001", 10);
 // }));
 
 
-app.use(cors());
+// app.use(cors());
+app.use(cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true, 
+  }));
 
 
 app.use(express.json());
 app.use(cookieParser());
+
+app.use(passport.initialize());
 
 
 app.get("/", (req: Request, res: Response) => {

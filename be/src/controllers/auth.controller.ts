@@ -6,14 +6,8 @@ import { ZodError } from "zod";
 import { loginSchema, signupSchema, updatePasswordSchema } from "../validators/auth.validator.js"; 
 import cloudinary from "../lib/cloudinary.js";
 
+import { AuthRequest } from "../middleware/auth.middleware.js";
 
-interface AuthRequest extends Request {
-    user?: {
-      id: string;
-      fullName: string;
-      email: string;
-    };
-  }
 
 export const signup = async (req: Request, res: Response) => { 
     try {
@@ -253,6 +247,18 @@ export const updatePassword = async (req: AuthRequest, res: Response) => {
         });
       }
       console.error("Error in updatePassword controller:", error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  };
+
+
+  export const checkAuth = async (req: AuthRequest, res: Response) => {
+    try {
+      res.status(200).json(req.user);
+      
+    } catch (error) {
+
+      console.error("Error in checkAuth controller:", error);
       res.status(500).json({ message: "Internal Server Error" });
     }
   };

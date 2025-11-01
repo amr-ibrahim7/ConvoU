@@ -1,13 +1,8 @@
 import { Request, Response } from "express";
 import prisma from "../lib/prisma.js";
 import cloudinary from "../lib/cloudinary.js";
+import { AuthRequest } from "../middleware/auth.middleware.js";
 
-
-interface AuthRequest extends Request {
-    user?: {
-      id: string;
-    };
-}
 
 export const getAllContacts = async (req: AuthRequest, res: Response) => {
     try{

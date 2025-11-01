@@ -1,63 +1,140 @@
 'use client';
 
-import { Home, User, MessageCircle, Image as ImageIcon } from 'lucide-react';
+import { Home, MessageCircle, LogIn, LogOut, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useAuthStore } from '@/store/useAuthStore';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from './ui/button';
+
+// import { Skeleton } from './ui/skeleton'; 
+
 
 export default function Navigation() {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
+  const { authUser, logout } = useAuthStore(); 
+
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const useTransparentStyle = pathname === '/' && !isScrolled;
+
+
+
+  const headerClasses = useTransparentStyle
+    ? 'bg-transparent text-white'
+    : 'bg-background/80 text-foreground border-b border-border backdrop-blur-lg';
+
+  const iconClasses = useTransparentStyle
+    ? 'text-white/70 group-hover:text-white'
+    : 'text-muted-foreground group-hover:text-foreground';
+
+  const mobileTextClasses = useTransparentStyle
+    ? 'text-white/50'
+    : 'text-muted-foreground';
+
   return (
     <>
-      {/* Desktop Navigation  */}
-      <nav className="fixed right-12 top-8 z-50 hidden lg:block">
-        <div className="flex items-center gap-6">
-
-          <Link href='/' className="group flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/5 backdrop-blur-md transition-all hover:border-white/40 hover:bg-white/10">
-            <Home className="h-5 w-5 text-white/70 transition-colors group-hover:text-white" />
+      {/* --- Desktop Header --- */}
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${headerClasses}`}>
+        <div className="container mx-auto flex items-center justify-between px-8 py-4">
+          <Link href="/" className="text-2xl font-light tracking-wider">
+            U.CONVO
           </Link>
 
-          <Link href='/user' className="group flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/5 backdrop-blur-md transition-all hover:border-white/40 hover:bg-white/10">
-            <User className="h-5 w-5 text-white/70 transition-colors group-hover:text-white" />
-          </Link>
+          <nav className="hidden lg:flex items-center gap-4">
+            <Link href='/' className="group flex items-center justify-center p-2 rounded-full" title="Home">
+              <Home className={`size-5 ${iconClasses}`} />
+            </Link>
+            
+            {authUser && (
+              <Link href='/mymessages' className="group flex items-center justify-center p-2 rounded-full" title="Messages">
+                <MessageCircle className={`size-5 ${iconClasses}`} />
+              </Link>
+            )}
 
 
-          <Link href='/mymessages' className="group flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/5 backdrop-blur-md transition-all hover:border-white/40 hover:bg-white/10">
-            <MessageCircle className="h-5 w-5 text-white/70 transition-colors group-hover:text-white" />
-          </Link>
+            {authUser ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage src={authUser.profilePic || ''} alt={authUser.fullName} />
+                      <AvatarFallback>
+                        {authUser.fullName.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuItem className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{authUser.fullName}</p>
+                      <p className="text-xs leading-none text-muted-foreground">{authUser.email}</p>
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link href="/profile">
+                      <UserIcon className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout} className="text-red-500 cursor-pointer">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link href='/login' className="group flex items-center justify-center p-2 rounded-full" title="Login">
+                <LogIn className={`size-5 ${iconClasses}`} />
+              </Link>
+            )}
+          </nav>
         </div>
-      </nav>
+      </header>
 
-      {/* Mobile Navigation */}
+      {/* --- Mobile Navigation --- */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
-        <div className="border-t border-white/10 bg-black/80 backdrop-blur-xl">
-          <div className="flex items-center justify-around px-6 py-4">
-
-            <Link href='/' className="group flex flex-col items-center gap-1">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full transition-all group-hover:bg-white/10">
-                <Home className="h-6 w-6 text-white/70 transition-colors group-hover:text-white" />
-              </div>
-              <span className="text-xs text-white/50">Home</span>
+        <div className={`border-t backdrop-blur-xl transition-colors duration-300 ${useTransparentStyle ? 'border-white/10 bg-black/80' : 'border-border bg-card/95'}`}>
+          <div className="flex items-center justify-around px-4 py-2">
+            <Link href='/' className="group flex flex-col items-center gap-1 p-2">
+              <Home className={`size-6 ${iconClasses}`} />
+              <span className={`text-xs ${mobileTextClasses}`}>Home</span>
             </Link>
 
-
-            <Link href='/' className="group flex flex-col items-center gap-1">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full transition-all group-hover:bg-white/10">
-                <ImageIcon className="h-6 w-6 text-white/70 transition-colors group-hover:text-white" />
-              </div>
-              <span className="text-xs text-white/50">Explore</span>
-            </Link>
-
-            <Link href='/mymessages' className="group flex flex-col items-center gap-1">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full transition-all group-hover:bg-white/10">
-                <MessageCircle className="h-6 w-6 text-white/70 transition-colors group-hover:text-white" />
-              </div>
-              <span className="text-xs text-white/50">Chat</span>
-            </Link>
-
-            <Link href='/user' className="group flex flex-col items-center gap-1">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full transition-all group-hover:bg-white/10">
-                <User className="h-6 w-6 text-white/70 transition-colors group-hover:text-white" />
-              </div>
-              <span className="text-xs text-white/50">Profile</span>
-            </Link>
+            {authUser ? (
+              <>
+                <Link href='/mymessages' className="group flex flex-col items-center gap-1 p-2">
+                  <MessageCircle className={`size-6 ${iconClasses}`} />
+                  <span className={`text-xs ${mobileTextClasses}`}>Chat</span>
+                </Link>
+                <Link href='/profile' className="group flex flex-col items-center gap-1 p-2">
+                  <UserIcon className={`size-6 ${iconClasses}`} />
+                  <span className={`text-xs ${mobileTextClasses}`}>Profile</span>
+                </Link>
+                <button onClick={logout} className="group flex flex-col items-center gap-1 p-2">
+                  <LogOut className={`size-6 ${iconClasses}`} />
+                  <span className={`text-xs ${mobileTextClasses}`}>Logout</span>
+                </button>
+              </>
+            ) : (
+              <Link href='/login' className="group flex flex-col items-center gap-1 p-2">
+                <LogIn className={`size-6 ${iconClasses}`} />
+                <span className={`text-xs ${mobileTextClasses}`}>Login</span>
+              </Link>
+            )}
           </div>
         </div>
       </nav>
