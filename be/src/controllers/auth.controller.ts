@@ -77,11 +77,14 @@ export const login = async (req: Request, res: Response) => {
 
         generateToken(user.id, res);
 
+        const isGoogleUser = !user.password;
+
         res.status(200).json({
             id: user.id,
             fullName: user.fullName,
             email: user.email,
             profilePic: user.profilePic,
+            isGoogleUser: isGoogleUser,
         });
 
     } catch (error) {

@@ -1,3 +1,4 @@
+
 import cors from "cors";
 import dotenv from "dotenv";
 import express, { Application, Request, Response } from "express";
@@ -10,44 +11,26 @@ import './lib/passport.js';
 
 import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
+import insightsRoutes from "./routes/insights.route.js";
+import { app, server } from "./lib/socket.js";
 
 
-dotenv.config();
-const app: Application = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const PORT: number = parseInt(process.env.PORT || "3001", 10);
 
-// app.use(cors({
-//   credentials: true,
-//   origin: true 
-// }));
-
-
-// app.use(cors());
+// Middlewares
 app.use(cors({
-    origin: process.env.CLIENT_URL,
-    credentials: true, 
-  }));
-
-
+  origin: process.env.CLIENT_URL || "http://localhost:3000",
+  credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
-
 app.use(passport.initialize());
 
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("Welcome to the Development Backend!");
-});
-
-
-app.get("/api/test", (req: Request, res: Response) => {
-    res.status(200).json({ message: "Backend is working!" });
-});
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/message", messageRoutes);
-
+app.use("/api/insights", insightsRoutes); 
 
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, "../fe/out")));
@@ -57,7 +40,8 @@ app.get(/^(?!\/api).*/, (req: Request, res: Response) => {
 });
 }
 
-
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+// Server Initialization
+const PORT: number = parseInt(process.env.PORT || "3001", 10);
+server.listen(PORT, () => {
+    console.log(`Server with Socket.IO is running on port ${PORT}`);
 });

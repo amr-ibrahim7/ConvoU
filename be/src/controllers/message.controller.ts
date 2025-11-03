@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import prisma from "../lib/prisma.js";
 import cloudinary from "../lib/cloudinary.js";
 import { AuthRequest } from "../middleware/auth.middleware.js";
+import { getReceiverSocketId, io } from "../lib/socket.js";
+
 
 
 export const getAllContacts = async (req: AuthRequest, res: Response) => {
@@ -154,14 +156,27 @@ export const sendMessage = async (req: AuthRequest, res: Response) => {
         });
 
         // todo :send message in real time if user is online - socket-io
+        const finalMessagePayload = {
+            ...newMessage,
+            receiverId: receiverId,
+        };
 
-        res.status(201).json(newMessage);
+  
+        const receiverSocketId = getReceiverSocketId(receiverId);
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit("newMessage", finalMessagePayload);
+        }
+
+
+        res.status(201).json(finalMessagePayload);
+
 
     } catch (error) {
         console.log("Error in sendMessage controller: ", error);
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
 
 
 
@@ -186,7 +201,6 @@ export const getConversations = async (req: AuthRequest, res: Response) => {
                         profilePic: true,
                     },
                 },
-            
                 messages: {
                     orderBy: {
                         createdAt: 'desc', 
@@ -204,6 +218,15 @@ export const getConversations = async (req: AuthRequest, res: Response) => {
                 otherParticipant: otherParticipant,
                 lastMessage: conv.messages[0] || null,
             };
+        });
+
+      
+        formattedConversations.sort((a, b) => {
+            if (!a.lastMessage) return 1;
+            if (!b.lastMessage) return -1;
+
+
+            return new Date(b.lastMessage.createdAt).getTime() - new Date(a.lastMessage.createdAt).getTime();
         });
 
         res.status(200).json(formattedConversations);

@@ -8,14 +8,22 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from './ui/button';
+import { useChatStore } from '@/store/ useChatStore';
 
-// import { Skeleton } from './ui/skeleton'; 
+
 
 
 export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const { authUser, logout } = useAuthStore(); 
+
+
+
+  const unreadMessages = useChatStore((state) => state.unreadMessages);
+
+
+  const totalUnreadCount = Object.values(unreadMessages).reduce((acc, count) => acc + count, 0);
 
 
   useEffect(() => {
@@ -56,9 +64,17 @@ export default function Navigation() {
               <Home className={`size-5 ${iconClasses}`} />
             </Link>
             
+
+             
             {authUser && (
-              <Link href='/mymessages' className="group flex items-center justify-center p-2 rounded-full" title="Messages">
+              <Link href='/mymessages' className="group relative flex items-center justify-center p-2 rounded-full" title="Messages">
                 <MessageCircle className={`size-5 ${iconClasses}`} />
+                {totalUnreadCount > 0 && (
+                  <span className="absolute top-1 right-1 flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                  </span>
+                )}
               </Link>
             )}
 
@@ -116,14 +132,19 @@ export default function Navigation() {
 
             {authUser ? (
               <>
-                <Link href='/mymessages' className="group flex flex-col items-center gap-1 p-2">
+                 <Link href='/mymessages' className="group relative flex flex-col items-center gap-1 p-2">
                   <MessageCircle className={`size-6 ${iconClasses}`} />
                   <span className={`text-xs ${mobileTextClasses}`}>Chat</span>
+                  {totalUnreadCount > 0 && (
+                    <span className="absolute top-1 right-1 flex h-2.5 w-2.5">
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                    </span>
+                  )}
                 </Link>
-                <Link href='/profile' className="group flex flex-col items-center gap-1 p-2">
+                {/* <Link href='/profile' className="group flex flex-col items-center gap-1 p-2">
                   <UserIcon className={`size-6 ${iconClasses}`} />
                   <span className={`text-xs ${mobileTextClasses}`}>Profile</span>
-                </Link>
+                </Link> */}
                 <button onClick={logout} className="group flex flex-col items-center gap-1 p-2">
                   <LogOut className={`size-6 ${iconClasses}`} />
                   <span className={`text-xs ${mobileTextClasses}`}>Logout</span>
