@@ -18,7 +18,6 @@
 // };
 
 // export default generateToken;
-
 import jwt from "jsonwebtoken";
 import { Response } from "express";
 
@@ -27,13 +26,11 @@ const generateToken = (userId: string, res: Response) => {
     expiresIn: "7d",
   });
 
-  const isProduction = process.env.NODE_ENV === "production";
-
   res.cookie("jwt", token, {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     httpOnly: true,
-    secure: isProduction, // Set to true in production
-    sameSite: isProduction ? "none" : "strict", // Important for cross-domain cookies
+    sameSite: "lax", // 'lax' is a good default for same-domain apps
+    secure: process.env.NODE_ENV === "production",
   });
 
   return token;
