@@ -1,0 +1,23 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "be/src/app.ts",
+        "use": "@vercel/node"
+      },
+      {
+        "src": "fe/next.config.ts",
+        "use": "@vercel/next"
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "/api/(.*)",
+        "destination": "/be/src/app.ts"
+      },
+      {
+        "source": "/(.*)",
+        "destination": "/fe/$1"
+      }
+    ]
+  }

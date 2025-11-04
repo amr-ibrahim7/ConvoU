@@ -8,8 +8,8 @@
     "dev": "nodemon --watch 'src/**/*.ts' --exec 'node --loader ts-node/esm' src/app.ts",
     "start": "pnpm run build && node dist/app.js",
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "vercel-build": "prisma generate && pnpm run build"
+    "test": "echo \"Error: no test specified\" && exit 1", 
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
@@ -48,5 +48,8 @@
     "prisma": "^6.18.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
+  },
+  "prisma": {
+    "binaryTargets": ["native", "rhel-openssl-1.0.x"]
   }
 }
