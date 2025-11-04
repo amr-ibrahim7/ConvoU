@@ -1,5 +1,0 @@
-  "dev:be": "pnpm --filter be dev",
-    "dev:fe": "pnpm --filter fe dev",
-    "dev": "concurrently \"pnpm run dev:be\" \"pnpm run dev:fe\"",
-    "build": "pnpm --filter fe build",
-    "start": "pnpm --filter be start"
