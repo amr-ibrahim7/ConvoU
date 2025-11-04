@@ -1,5 +1,9 @@
-{
-    "framework": "nextjs",
-    "buildCommand": "pnpm run build",
-    "installCommand": "pnpm install"
+
+  {
+    "rewrites": [
+      {
+        "source": "/api/:path*",
+        "destination": "https://convo-u-be.vercel.app/api/:path*"
+      }
+    ]
   }

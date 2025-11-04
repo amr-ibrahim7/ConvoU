@@ -6,7 +6,10 @@ import { io, Socket } from "socket.io-client";
 import { useChatStore } from './ useChatStore';
 
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+// const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+const SOCKET_URL = process.env.NODE_ENV === "production"
+  ? "https://convo-u-be.vercel.app"
+  : "http://localhost:5001";
 
 interface User {
   id: string;
