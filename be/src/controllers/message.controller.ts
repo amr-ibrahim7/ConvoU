@@ -239,3 +239,42 @@ export const getConversations = async (req: AuthRequest, res: Response) => {
 
 
 
+
+
+export const deleteConversation = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id: conversationId } = req.params;
+        const loggedInUserId = req.user?.id;
+
+        if (!loggedInUserId) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        
+        const conversation = await prisma.conversation.findUnique({
+            where: { id: conversationId },
+            include: { participants: { select: { id: true } } },
+        });
+
+        if (!conversation) {
+            return res.status(404).json({ message: "Conversation not found" });
+        }
+
+       
+        const isParticipant = conversation.participants.some(p => p.id === loggedInUserId);
+        if (!isParticipant) {
+            return res.status(403).json({ message: "Forbidden: You are not a participant in this conversation" });
+        }
+
+
+        await prisma.conversation.delete({
+            where: { id: conversationId },
+        });
+
+        res.status(200).json({ message: "Conversation deleted successfully" });
+
+    } catch (error) {
+        console.log("Error in deleteConversation controller: ", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};

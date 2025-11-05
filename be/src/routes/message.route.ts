@@ -1,5 +1,5 @@
 import express, { RequestHandler } from "express";
-import { getAllContacts, getConversations, getMessages, sendMessage } from "../controllers/message.controller.js";
+import { deleteConversation, getAllContacts, getConversations, getMessages, sendMessage } from "../controllers/message.controller.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import { arcjetProtection } from "../middleware/arcjet.middleware.js";
 import { upload } from "../middleware/multer.middleware.js";
@@ -19,6 +19,7 @@ router.get("/:id", getMessages as RequestHandler);
 // router.post("/send/:id", sendMessage as RequestHandler);
 router.post("/send/:id", upload.single('image'), sendMessage as RequestHandler);
 
+router.delete("/conversations/:id", deleteConversation as RequestHandler);
 
 
 

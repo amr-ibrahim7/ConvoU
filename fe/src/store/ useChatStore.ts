@@ -82,6 +82,8 @@ interface ChatState {
   ) => Promise<void>;
   addMessage: (message: Message) => void;
   refetchChats: () => Promise<void>;
+
+  deleteConversation: (conversationId: string) => Promise<void>;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -192,71 +194,71 @@ export const useChatStore = create<ChatState>((set, get) => ({
       delete newUnreadMessages[conversationId];
       return { unreadMessages: newUnreadMessages };
     }),
-  
- 
-sendMessage: async (receiverId: string, text?: string, image?: File | null) => {
-  const formData = new FormData();
-  if (text) formData.append('text', text);
-  if (image) formData.append('image', image);
 
-  try {
-    const response = await axiosInstance.post(`/api/message/send/${receiverId}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+  sendMessage: async (
+    receiverId: string,
+    text?: string,
+    image?: File | null
+  ) => {
+    const formData = new FormData();
+    if (text) formData.append("text", text);
+    if (image) formData.append("image", image);
 
+    try {
+      const response = await axiosInstance.post(
+        `/api/message/send/${receiverId}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
 
-    const newMessage = response.data;
-    
+      const newMessage = response.data;
 
-    set((state) => ({
-      messages: [...state.messages, newMessage],
-    }));
-
- 
-    get().refetchChats();
-
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      toast.error(error.response?.data?.message || "Failed to send message.");
-    } else {
-      toast.error("An unexpected error occurred.");
-    }
-  }
-},
-
-addMessage: (message: Message) => {
-  const { selectedUser, messages, chats } = get();
-  const authUser = useAuthStore.getState().authUser;
-  if (!authUser) return;
-
-
-  const messageExists = messages.some((msg) => msg.id === message.id);
-  if (messageExists) return;
-
- 
-  const chat = chats.find((c) => c.conversationId === message.conversationId);
-  
-
-  const isChatOpen = selectedUser && chat && 
-    chat.otherParticipant.id === selectedUser.id;
-  
- 
-  if (isChatOpen) {
-    set((state) => ({
-      messages: [...state.messages, message],
-    }));
-  } else {
-    if (message.senderId !== authUser.id) {
       set((state) => ({
-        unreadMessages: {
-          ...state.unreadMessages,
-          [message.conversationId]: (state.unreadMessages[message.conversationId] || 0) + 1,
-        },
+        messages: [...state.messages, newMessage],
       }));
+
+      get().refetchChats();
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.message || "Failed to send message.");
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
     }
-  }
-  get().refetchChats();
-},
+  },
+
+  addMessage: (message: Message) => {
+    const { selectedUser, messages, chats } = get();
+    const authUser = useAuthStore.getState().authUser;
+    if (!authUser) return;
+
+    const messageExists = messages.some((msg) => msg.id === message.id);
+    if (messageExists) return;
+
+    const chat = chats.find((c) => c.conversationId === message.conversationId);
+
+    const isChatOpen =
+      selectedUser && chat && chat.otherParticipant.id === selectedUser.id;
+
+    if (isChatOpen) {
+      set((state) => ({
+        messages: [...state.messages, message],
+      }));
+    } else {
+      if (message.senderId !== authUser.id) {
+        set((state) => ({
+          unreadMessages: {
+            ...state.unreadMessages,
+            [message.conversationId]:
+              (state.unreadMessages[message.conversationId] || 0) + 1,
+          },
+        }));
+      }
+    }
+    get().refetchChats();
+  },
 
   insight: null,
   isInsightLoading: false,
@@ -271,6 +273,33 @@ addMessage: (message: Message) => {
       console.error("Error fetching insight:", error);
     } finally {
       set({ isInsightLoading: false });
+    }
+  },
+
+  deleteConversation: async (conversationId: string) => {
+    const toastId = toast.loading("Deleting conversation...");
+    try {
+      await axiosInstance.delete(
+        `/api/message/conversations/${conversationId}`
+      );
+
+      set((state) => ({
+        chats: state.chats.filter((c) => c.conversationId !== conversationId),
+      }));
+
+      if (
+        get().selectedUser &&
+        get().chats.every(
+          (c) => c.otherParticipant.id !== get().selectedUser?.id
+        )
+      ) {
+        set({ selectedUser: null, messages: [] });
+      }
+
+      toast.success("Conversation deleted", { id: toastId });
+    } catch (error) {
+      toast.error("Failed to delete conversation", { id: toastId });
+      console.error("Error deleting conversation:", error);
     }
   },
 }));
